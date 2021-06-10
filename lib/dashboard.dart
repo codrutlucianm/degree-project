@@ -19,7 +19,6 @@ final List<StreamSubscription<dynamic>> _streamSubscriptions =
 void getValues() {
   _streamSubscriptions
       .add(accelerometerEvents.listen((AccelerometerEvent event) {
-    //setState(() {
     _accelerometerValues = <double>[
       double.parse(event.x.toStringAsFixed(1)),
       double.parse(event.y.toStringAsFixed(1)),
@@ -45,11 +44,9 @@ void getValues() {
             _previousAccelerometerValues.elementAt(2).abs() <=
             5) {
       debugPrint('fmm');
-      //_counter++;
     }
     _logs.add(_accelerometerValues);
     _previousAccelerometerValues = _accelerometerValues;
-    //});
   }));
 }
 
