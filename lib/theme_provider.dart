@@ -8,8 +8,8 @@ class ThemeProvider extends ChangeNotifier {
   }
 
   final String key = 'theme';
-  SharedPreferences _preferences;
-  bool _darkTheme;
+  late SharedPreferences _preferences;
+  late bool _darkTheme;
 
   bool get darkTheme => _darkTheme;
 
