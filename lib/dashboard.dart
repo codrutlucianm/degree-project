@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:parkinson_detection_app/tremor.dart';
+import 'package:parkinson_detection_app/tremors_database.dart';
 import 'package:sensors/sensors.dart';
 
 class Dashboard extends StatefulWidget {
@@ -14,7 +16,15 @@ List<double> _previousAccelerometerValues = <double>[-999, -999, -999];
 int _counter = 0;
 final List<List<double>> _logs = <List<double>>[];
 final List<StreamSubscription<dynamic>> _streamSubscriptions =
-<StreamSubscription<dynamic>>[];
+    <StreamSubscription<dynamic>>[];
+
+Future<void> addTremor() async {
+  final Tremor tremor = Tremor(
+    recordedDateTime: DateTime.now()
+  );
+
+  await TremorsDatabase.instance.create(tremor);
+}
 
 void getValues() {
   _streamSubscriptions
@@ -26,24 +36,26 @@ void getValues() {
     ];
     if (_previousAccelerometerValues != <double>[-999, -999, -999] &&
         _accelerometerValues.elementAt(0) -
-            _previousAccelerometerValues.elementAt(0).abs() >=
+                _previousAccelerometerValues.elementAt(0).abs() >=
             0.1 &&
         _accelerometerValues.elementAt(0) -
-            _previousAccelerometerValues.elementAt(0).abs() <=
+                _previousAccelerometerValues.elementAt(0).abs() <=
             3.5 &&
         _accelerometerValues.elementAt(1) -
-            _previousAccelerometerValues.elementAt(1).abs() >=
+                _previousAccelerometerValues.elementAt(1).abs() >=
             0.7 &&
         _accelerometerValues.elementAt(1) -
-            _previousAccelerometerValues.elementAt(1).abs() <=
+                _previousAccelerometerValues.elementAt(1).abs() <=
             8.5 &&
         _accelerometerValues.elementAt(2) -
-            _previousAccelerometerValues.elementAt(2).abs() >=
+                _previousAccelerometerValues.elementAt(2).abs() >=
             0.9 &&
         _accelerometerValues.elementAt(2) -
-            _previousAccelerometerValues.elementAt(2).abs() <=
+                _previousAccelerometerValues.elementAt(2).abs() <=
             5) {
-      debugPrint('fmm');
+      debugPrint('fmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmmm');
+      addTremor();
+      debugPrint(TremorsDatabase.instance.readAllTremors().toString());
     }
     _logs.add(_accelerometerValues);
     _previousAccelerometerValues = _accelerometerValues;
@@ -51,11 +63,22 @@ void getValues() {
 }
 
 class DashboardState extends State<Dashboard> {
+  List<Tremor> tremors = <Tremor>[];
+  bool isLoading = false;
 
   @override
   void initState() {
     super.initState();
     getValues();
+    refreshTremors();
+  }
+
+  Future<void> refreshTremors() async {
+    setState(() => isLoading = true);
+
+    tremors = await TremorsDatabase.instance.readAllTremors();
+
+    setState(() => isLoading = false);
   }
 
   @override
@@ -90,12 +113,14 @@ class DashboardState extends State<Dashboard> {
                 ),
               ),
               Expanded(
-                child: ListView(
-                  children: <Widget>[
-                    ListTile(
-                      title: Text(_counter.toString()),
-                    ),
-                  ],
+                child: ListView.builder(
+                  itemBuilder: (BuildContext context, int index) {
+
+                    return ListTile(
+                      title: Text(tremors.elementAt(index).id.toString() + '. '+ tremors.elementAt(index).recordedDateTime.toString())
+                    );
+                  },
+                  itemCount: tremors.length,
                 ),
               ),
             ],
