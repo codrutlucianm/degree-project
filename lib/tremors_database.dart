@@ -9,15 +9,15 @@ class TremorsDatabase {
   TremorsDatabase._init();
 
   static final TremorsDatabase instance = TremorsDatabase._init();
-  static Database? _database;
+  static Database _database;
 
   Future<Database> get database async {
     if (_database != null) {
-      return _database!;
+      return _database;
     }
 
     _database = await _initDB('tremors.db');
-    return _database!;
+    return _database;
   }
 
   Future<Database> _initDB(String filePath) async {
@@ -49,10 +49,10 @@ class TremorsDatabase {
   Future<Tremor> readTremor(int id) async {
     final Database db = await instance.database;
 
-    final List<Map<String, Object?>> maps = await db.query(tableTremors,
+    final List<Map<String, Object>> maps = await db.query(tableTremors,
         columns: TremorFields.values,
         where: '${TremorFields.id} = ?',
-        whereArgs: [id]);
+        whereArgs: <int>[id]);
 
     if (maps.isNotEmpty) {
       return Tremor.fromJson(maps.first);
@@ -64,12 +64,12 @@ class TremorsDatabase {
   Future<List<Tremor>> readAllTremors() async {
     final Database db = await instance.database;
     final String orderBy = '${TremorFields.recordedDateTime} ASC';
-    //final List<Map<String, Object?>> result = await db.rawQuery('SELECT * FROM $tableTremors ORDER BY $orderBy');
-    final List<Map<String, Object?>> result =
-        await db.query(tableTremors, orderBy: orderBy);
+    final List<Map<String, Object>> result = await db.rawQuery('SELECT * FROM $tableTremors ORDER BY $orderBy');
+    /*final List<Map<String, Object>> result =
+        await db.query(tableTremors, orderBy: orderBy);*/
 
     return result
-        .map((Map<String, Object?> json) => Tremor.fromJson(json))
+        .map((Map<String, Object> json) => Tremor.fromJson(json))
         .toList();
   }
 
@@ -80,7 +80,7 @@ class TremorsDatabase {
       tableTremors,
       tremor.toJson(),
       where: '${TremorFields.id} = ?',
-      whereArgs: [tremor.id],
+      whereArgs: <int>[tremor.id],
     );
   }
 
@@ -90,7 +90,7 @@ class TremorsDatabase {
     return await db.delete(
       tableTremors,
       where: '${TremorFields.id} = ?',
-        whereArgs: [id],
+        whereArgs: <int>[id],
     );
   }
 

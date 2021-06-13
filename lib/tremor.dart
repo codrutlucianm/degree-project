@@ -7,26 +7,31 @@ class TremorFields {
 }
 
 class Tremor {
-  const Tremor({this.id, required this.recordedDateTime});
+  const Tremor({this.id, this.recordedDateTime});
 
-  final int? id;
+  final int id;
   final DateTime recordedDateTime;
 
   Tremor copy({
-    int? id,
-    DateTime? recordedDateTime,
+    int id,
+    DateTime recordedDateTime,
   }) =>
       Tremor(
           id: id ?? this.id,
           recordedDateTime: recordedDateTime ?? this.recordedDateTime);
 
-  static Tremor fromJson(Map<String, Object?> json) => Tremor(
-      id: json[TremorFields.id] as int?,
+  static Tremor fromJson(Map<String, Object> json) => Tremor(
+      id: json[TremorFields.id] as int,
       recordedDateTime:
           DateTime.parse(json[TremorFields.recordedDateTime] as String));
 
-  Map<String, Object?> toJson() => {
+  Map<String, Object> toJson() => {
         TremorFields.id: id,
         TremorFields.recordedDateTime: recordedDateTime.toIso8601String()
       };
+
+  @override
+  String toString() {
+    return 'Id: $id, Date: $recordedDateTime';
+  }
 }

@@ -12,7 +12,7 @@ class HomePage extends StatefulWidget {
 
 class HomePageState extends State<HomePage> {
   int _currentIndex = 0;
-  late PageController _c;
+  PageController _c;
   final List<Widget> pages = <Widget>[
     Dashboard(),
     AccelerometerValues(),
