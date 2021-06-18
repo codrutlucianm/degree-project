@@ -3,6 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:foreground_service/foreground_service.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:parkinson_detection_app/foreground_provider.dart';
 import 'package:parkinson_detection_app/theme_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -10,18 +11,31 @@ import 'dashboard.dart';
 import 'home_page.dart';
 
 Future<void> main() async {
-  runApp(Tremor());
-  maybeStartFGS();
+  runApp(
+    MultiProvider(
+      providers: <ChangeNotifierProvider<dynamic>>[
+        ChangeNotifierProvider<ThemeProvider>(
+          create: (_) => ThemeProvider(),
+        ),
+        ChangeNotifierProvider<ForegroundProvider>(
+          create: (_) => ForegroundProvider(),
+        ),
+      ],
+      child: Tremor(),
+    ),
+  );
+  //maybeStartFGS();
 }
 
-void maybeStartFGS() async {
+dynamic maybeStartFGS() async {
   if (!(await ForegroundService.foregroundServiceIsStarted())) {
     await ForegroundService.setServiceIntervalSeconds(5);
 
     await ForegroundService.notification.startEditMode();
 
-    await ForegroundService.notification.setTitle('Title');
-    await ForegroundService.notification.setText('Text');
+    await ForegroundService.notification.setTitle('Tremor');
+    await ForegroundService.notification
+        .setText('Tremor is running in the foreground');
 
     await ForegroundService.notification.finishEditMode();
 
@@ -33,8 +47,9 @@ void maybeStartFGS() async {
   }
 }
 
-void toggleForegroundServiceOnOff() async {
-  final bool fgsIsRunning = await ForegroundService.foregroundServiceIsStarted();
+dynamic toggleForegroundServiceOnOff() async {
+  final bool fgsIsRunning =
+      await ForegroundService.foregroundServiceIsStarted();
 
   if (fgsIsRunning) {
     await ForegroundService.stopForegroundService();
@@ -49,13 +64,12 @@ class Tremor extends StatefulWidget {
 }
 
 class _TremorState extends State<Tremor> {
-
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider<ThemeProvider>(
       create: (_) => ThemeProvider(),
       child: Consumer<ThemeProvider>(
-        builder: (BuildContext context, ThemeProvider provider, Widget child) {
+       builder: (BuildContext context, ThemeProvider provider, Widget child) {
           return MaterialApp(
             debugShowCheckedModeBanner: false,
             title: 'Tremor',
@@ -65,7 +79,6 @@ class _TremorState extends State<Tremor> {
               splash: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
-                  //Image.asset('assets/Logo.png', width: 100.0, height: 100.0),
                   Text(
                     'Tremor',
                     style: GoogleFonts.lobster(

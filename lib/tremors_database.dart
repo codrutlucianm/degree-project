@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
 import 'package:parkinson_detection_app/tremor.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -39,6 +38,32 @@ class TremorsDatabase {
     ''');
   }
 
+  Future<List<Tremor>> selectTremorsByDate(DateTime date) async {
+    final String year = date.year.toString();
+    String month = date.month.toString();
+    String day = date.day.toString();
+    if (month.length == 1) {
+      month = '0' + month;
+    }
+    if (day.length == 1) {
+      day = '0' + day;
+    }
+    String dateS = '$year-$month-$day';
+    final Database db = await instance.database;
+    print(dateS);
+    final List<Map<String, Object>> result = await db.rawQuery(
+        'SELECT * FROM $tableTremors WHERE DATE(recordedDateTime) = \'$dateS\'');
+
+    return result
+        .map((Map<String, Object> json) => Tremor.fromJson(json))
+        .toList();
+  }
+
+  Future<void> clearAllTremors() async {
+    final Database db = await instance.database;
+    await db.rawQuery('DELETE FROM $tableTremors');
+  }
+
   Future<Tremor> create(Tremor tremor) async {
     final Database db = await instance.database;
 
@@ -63,10 +88,9 @@ class TremorsDatabase {
 
   Future<List<Tremor>> readAllTremors() async {
     final Database db = await instance.database;
-    final String orderBy = '${TremorFields.recordedDateTime} ASC';
-    final List<Map<String, Object>> result = await db.rawQuery('SELECT * FROM $tableTremors ORDER BY $orderBy');
-    /*final List<Map<String, Object>> result =
-        await db.query(tableTremors, orderBy: orderBy);*/
+    final String orderBy = '${TremorFields.recordedDateTime} DESC';
+    final List<Map<String, Object>> result =
+        await db.rawQuery('SELECT * FROM $tableTremors ORDER BY $orderBy');
 
     return result
         .map((Map<String, Object> json) => Tremor.fromJson(json))
@@ -90,7 +114,7 @@ class TremorsDatabase {
     return await db.delete(
       tableTremors,
       where: '${TremorFields.id} = ?',
-        whereArgs: <int>[id],
+      whereArgs: <int>[id],
     );
   }
 
