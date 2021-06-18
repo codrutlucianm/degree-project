@@ -50,7 +50,6 @@ class TremorsDatabase {
     }
     String dateS = '$year-$month-$day';
     final Database db = await instance.database;
-    print(dateS);
     final List<Map<String, Object>> result = await db.rawQuery(
         'SELECT * FROM $tableTremors WHERE DATE(recordedDateTime) = \'$dateS\'');
 
